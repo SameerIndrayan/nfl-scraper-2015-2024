@@ -21,7 +21,7 @@ rename_dict = {
 start_time = time.time()
 
 #range of szns to use
-seasons = range(2015, 2025) # goes up 1 less than 2025
+seasons = range(2015, 2025) # (IT DOES 1 LESS THAN MAX RANGE)
 
 #empty dataframe to dump all team and opponent data
 nfl_df = pd.DataFrame()
@@ -35,7 +35,7 @@ for season in seasons:
         url = 'https://www.pro-football-reference.com/teams/'+ team + '/' + str(season) + '/gamelog/'
         count+=1
         print(f"{url}, {count} teams have been iterated.")
-        #from 2015 to 2024, there were 5246 games. 32 teams x 16 games for 2015 to 2020 + 32 teams x 17 games for 2021 to 2024 = 5248 games but Damar Hamlin injury so -2 --> 5246
+        #from 2015 to 2024, there were 5246 games. 32 teams x 16 games for 2015 to 2020 + 32 teams x 17 games for 2021 to 2024 = 5248 games but Damar Hamlin injury so --> 5246
         # SCRAPING TM STATS
 
         # Get team stats from game logs table
@@ -79,9 +79,17 @@ for season in seasons:
         nfl_df = nfl_df.drop(columns=['Rk'], axis =1)
 
         # Home, Win, and OT cols to binary
-        nfl_df['Home']= np.where(nfl_df['Home'] == '@', 0, 1)
-        nfl_df['Win']= np.where(nfl_df['Home'] == 'W', 1, 0)
-        nfl_df['OT']= np.where(nfl_df['OT'] == 'OT', 1, 0)
+        # nfl_df['Home'] = np.where(nfl_df['Home'] == '@', 0, 1)
+        # nfl_df['Win'] = np.where(nfl_df['Win'] == 'W', 1, 0)
+        # nfl_df['OT'] = np.where(nfl_df['OT'] == 'OT', 1, 0)
+        # nfl_df['Home'] = nfl_df['Home'].replace({'@': 0, '': 0})
+        # nfl_df['OT'] = nfl_df['OT'].replace({'OT': 1, '': 0})
+
+        #thank you rishit 
+        nfl_df['Win'] = nfl_df['Win'].replace({'W': 1, 'L': 0})
+        nfl_df['Home'] = nfl_df['Home'].replace({'@': 0}).fillna(1).astype(int)
+        nfl_df['OT'] = nfl_df['OT'].replace({'OT': 1}).fillna(0).astype(int)
+        
 
         time.sleep(random.randint(4,5)) # have to have at least 3 sec delay according to website rules
 
@@ -91,7 +99,7 @@ print(f'Elapsed time: {end_time - start_time:1f} seconds')
 
 print(nfl_df.info())
 
-nfl_df.to_csv('nfl_gamelogs_2015-2024.csv', index=False)
+nfl_df.to_csv('nfl_gamelogs_2015-2024real.csv', index=False)
 
 
 
